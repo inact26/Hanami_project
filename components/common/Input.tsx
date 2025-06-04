@@ -11,7 +11,7 @@ export const Input: React.FC<InputProps> = ({ label, id, error, className, ...pr
       {label && <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1">{label}</label>}
       <input
         id={id}
-        className={`block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm ${className} ${error ? 'border-red-500' : ''}`}
+        className={`block w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-300 focus:border-teal-300 sm:text-sm font-light ${className} ${error ? 'border-red-300' : ''}`}
         {...props}
       />
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
@@ -30,7 +30,7 @@ export const Textarea: React.FC<TextareaProps> = ({ label, id, error, className,
       {label && <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1">{label}</label>}
       <textarea
         id={id}
-        className={`block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm ${className} ${error ? 'border-red-500' : ''}`}
+        className={`block w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-300 focus:border-teal-300 sm:text-sm font-light ${className} ${error ? 'border-red-300' : ''}`}
         {...props}
       />
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}

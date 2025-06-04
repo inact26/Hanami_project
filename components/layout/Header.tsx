@@ -10,17 +10,16 @@ export const Header: React.FC = () => {
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-      isActive ? 'bg-teal-700 text-white' : 'text-emerald-100 hover:bg-teal-600 hover:text-white'
+      isActive ? 'bg-teal-500 text-white' : 'text-teal-700 hover:bg-teal-100 hover:text-teal-900'
     }`;
 
   return (
-    <header className="bg-teal-600 shadow-md">
+    <header className="bg-gradient-to-r from-emerald-50 via-emerald-100 to-emerald-50 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <NavLink to="/" className="text-2xl font-bold text-white">
-              {APP_NAME}
-            </NavLink>
+            <NavLink to="/" className="text-3xl font-extrabold text-teal-700">Hanami</NavLink>
+            <span className="ml-2 text-sm text-teal-500 hidden sm:inline">{APP_NAME}</span>
           </div>
           <nav className="flex items-center space-x-4">
             {currentUser ? (
@@ -43,8 +42,8 @@ export const Header: React.FC = () => {
                     <NavLink to="/dashboard/admin/classes" className={navLinkClass}>Tous les cours</NavLink>
                    </>
                 )}
-                <span className="text-emerald-100 text-sm hidden md:block">Bonjour, {currentUser.name} ({currentUser.role})</span>
-                <Button onClick={logout} variant="ghost" size="sm" className="border-emerald-100 text-emerald-100 hover:bg-white hover:text-teal-600">
+                <span className="text-teal-600 text-sm hidden md:block">Bonjour, {currentUser.name} ({currentUser.role})</span>
+                <Button onClick={logout} variant="ghost" size="sm" className="border-teal-600 text-teal-600 hover:bg-white hover:text-teal-700">
                   Déconnexion
                 </Button>
               </>
