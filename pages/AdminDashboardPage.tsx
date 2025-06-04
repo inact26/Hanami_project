@@ -11,10 +11,15 @@ import { Input } from '../components/common/Input';
 
 
 const ManageUsers: React.FC = () => {
-  const { users, currentUser, updateUserCredits } = useAppContext();
+  const { users, currentUser, updateUserCredits, createUser, updateUser, deleteUser } = useAppContext();
   const [isCreditsModalOpen, setIsCreditsModalOpen] = useState(false);
   const [selectedStudentForCredits, setSelectedStudentForCredits] = useState<User | null>(null);
   const [newCreditValue, setNewCreditValue] = useState<string>('');
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState('');
+  const [userRole, setUserRole] = useState<UserRole>(UserRole.STUDENT);
+  const [userPassword, setUserPassword] = useState('');
 
   if (!currentUser || currentUser.role !== UserRole.ADMIN) return null;
 
@@ -48,11 +53,48 @@ const ManageUsers: React.FC = () => {
     }
   };
 
+  const handleOpenUserModal = (user?: User) => {
+    if (user) {
+      setEditingUser(user);
+      setUserName(user.name);
+      setUserRole(user.role);
+      setUserPassword('');
+    } else {
+      setEditingUser(null);
+      setUserName('');
+      setUserRole(UserRole.STUDENT);
+      setUserPassword('');
+    }
+    setIsUserModalOpen(true);
+  };
+
+  const handleCloseUserModal = () => {
+    setIsUserModalOpen(false);
+  };
+
+  const handleSaveUser = () => {
+    if (editingUser) {
+      updateUser(editingUser.id, { name: userName, role: userRole, password: userPassword || undefined });
+    } else {
+      createUser({ name: userName, role: userRole, password: userPassword });
+    }
+    handleCloseUserModal();
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    if (window.confirm('Supprimer cet utilisateur ?')) {
+      deleteUser(userId);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="p-6 bg-white rounded-xl shadow-lg border border-emerald-100">
-        <h2 className="text-3xl font-semibold text-teal-700 mb-1">Gestion des Utilisateurs</h2>
-        <p className="text-slate-600">Visualisez et gérez les utilisateurs de la plateforme.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 bg-white rounded-xl shadow-lg border border-emerald-100">
+        <div>
+          <h2 className="text-3xl font-semibold text-teal-700 mb-1">Gestion des Utilisateurs</h2>
+          <p className="text-slate-600">Visualisez et gérez les utilisateurs de la plateforme.</p>
+        </div>
+        <Button onClick={() => handleOpenUserModal()} variant="primary" className="mt-3 sm:mt-0">Ajouter un utilisateur</Button>
       </div>
       <div className="bg-white shadow-md overflow-hidden sm:rounded-lg">
         <ul role="list" className="divide-y divide-slate-200">
@@ -87,16 +129,20 @@ const ManageUsers: React.FC = () => {
                      </p>
                   )}
                 </div>
-                {user.role === UserRole.STUDENT && (
-                    <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="mt-2 sm:mt-0 text-teal-600 hover:text-teal-700"
-                        onClick={() => handleOpenCreditsModal(user)}
-                    >
-                      Gérer Crédits
-                    </Button>
-                )}
+                <div className="flex space-x-2 mt-2 sm:mt-0">
+                  {user.role === UserRole.STUDENT && (
+                      <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-teal-600 hover:text-teal-700"
+                          onClick={() => handleOpenCreditsModal(user)}
+                      >
+                        Crédits
+                      </Button>
+                  )}
+                  <Button size="sm" variant="ghost" onClick={() => handleOpenUserModal(user)}>Éditer</Button>
+                  <Button size="sm" variant="ghost" onClick={() => handleDeleteUser(user.id)}>Supprimer</Button>
+                </div>
               </div>
             </li>
           ))}
@@ -126,6 +172,21 @@ const ManageUsers: React.FC = () => {
             </div>
         </Modal>
       )}
+      <Modal
+        isOpen={isUserModalOpen}
+        onClose={handleCloseUserModal}
+        title={editingUser ? 'Modifier un utilisateur' : 'Créer un utilisateur'}
+      >
+        <div className="space-y-4 py-2">
+          <Input label="Nom" type="text" id="userName" value={userName} onChange={e => setUserName(e.target.value)} />
+          <Select label="Rôle" id="userRole" value={userRole} onChange={e => setUserRole(e.target.value as UserRole)} options={USER_ROLES_CONFIG} />
+          <Input label="Mot de passe" type="password" id="userPassword" value={userPassword} onChange={e => setUserPassword(e.target.value)} />
+        </div>
+        <div className="flex justify-end space-x-3">
+          <Button variant="secondary" onClick={handleCloseUserModal}>Annuler</Button>
+          <Button onClick={handleSaveUser}>Sauvegarder</Button>
+        </div>
+      </Modal>
     </div>
   );
 };
@@ -215,4 +276,5 @@ export const AdminDashboardPage: React.FC = () => {
 };
 
 export { ManageUsers as AdminManageUsers };
-export { ManageClasses as AdminManageClasses };
+export { ManageClasses as AdminManageClasses }
+

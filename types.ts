@@ -9,6 +9,7 @@ export interface User {
   name: string;
   role: UserRole;
   email?: string; // Optional, for future use
+  password?: string; // Simple string password stored locally
   credits?: number; // Specifically for students, managed by teacher/admin
 }
 

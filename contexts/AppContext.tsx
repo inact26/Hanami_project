@@ -12,7 +12,7 @@ interface AppContextType {
   bookings: Booking[];
   notifications: AppNotification[];
   isLoading: boolean;
-  login: (name: string, role: UserRole) => User | null;
+  login: (name: string, role: UserRole, password: string) => User | null;
   logout: () => void;
   addNotification: (message: string, type: AppNotification['type']) => void;
   dismissNotification: (id: string) => void;
@@ -29,13 +29,16 @@ interface AppContextType {
   getBookingsThisWeekForCurrentUser: () => number;
   // User Management (Admin)
   updateUserCredits: (studentId: string, newCreditAmount: number) => boolean;
+  createUser: (data: {name: string; role: UserRole; password?: string; credits?: number}) => User | null;
+  updateUser: (userId: string, data: Partial<Omit<User, 'id'>>) => User | null;
+  deleteUser: (userId: string) => boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const initialAdminUser: User = { id: 'admin-001', name: 'Admin User', role: UserRole.ADMIN };
-const initialTeacherUser: User = { id: 'teacher-001', name: 'Professeur Oak', role: UserRole.TEACHER };
-const initialStudentUser: User = { id: 'student-001', name: 'Élève Sacha', role: UserRole.STUDENT, credits: 10 };
+const initialAdminUser: User = { id: 'admin-001', name: 'Admin User', role: UserRole.ADMIN, password: 'admin' };
+const initialTeacherUser: User = { id: 'teacher-001', name: 'Professeur Oak', role: UserRole.TEACHER, password: 'teacher' };
+const initialStudentUser: User = { id: 'student-001', name: 'Élève Sacha', role: UserRole.STUDENT, credits: 10, password: 'student' };
 
 const initialClasses: YogaClass[] = [
   { id: 'class-001', name: 'Yin Yoga Doux', teacherId: 'teacher-001', teacherName: 'Professeur Oak', dayOfWeek: 'Mercredi', startTime: '18:00', endTime: '19:00', location: 'Salle Harmonie', totalSlots: 15, cancellationWindowHours: 2, description: 'Un cours doux pour étirer en profondeur.' },
@@ -84,13 +87,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setNotifications(prev => [newNotification, ...prev.slice(0, 4)]); // Keep last 5 notifications
   }, []);
 
-  const login = useCallback((name: string, role: UserRole): User | null => {
+  const login = useCallback((name: string, role: UserRole, password: string): User | null => {
     let user = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.role === role);
-    if (!user) { 
-      const newUser: User = { 
-        id: `user-${Date.now()}`, 
-        name, 
-        role, 
+    if (user) {
+      if (user.password && user.password !== password) {
+        addNotification('Mot de passe incorrect.', 'error');
+        return null;
+      }
+      if (!user.password) {
+        // First login, set password
+        const updated = { ...user, password };
+        setUsers(prev => prev.map(u => u.id === user!.id ? updated : u));
+        user = updated;
+      }
+    } else {
+      const newUser: User = {
+        id: `user-${Date.now()}`,
+        name,
+        role,
+        password: password || undefined,
         credits: role === UserRole.STUDENT ? 10 : undefined // New students get 10 credits
       };
       setUsers(prev => [...prev, newUser]);
@@ -100,7 +115,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(user));
     addNotification(`Bienvenue ${user.name}!`, 'success');
     return user;
-  }, [users, setUsers, addNotification]); 
+  }, [users, setUsers, addNotification]);
 
   const logout = useCallback(() => {
     setCurrentUser(null);
@@ -148,6 +163,61 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         return false;
     }
   }, [currentUser, addNotification, setUsers, setCurrentUser]);
+
+  const createUser = useCallback((data: {name: string; role: UserRole; password?: string; credits?: number}): User | null => {
+    if (!currentUser || currentUser.role !== UserRole.ADMIN) {
+      addNotification('Action non autorisée.', 'error');
+      return null;
+    }
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      name: data.name,
+      role: data.role,
+      password: data.password,
+      credits: data.role === UserRole.STUDENT ? (data.credits ?? 0) : undefined
+    };
+    setUsers(prev => [...prev, newUser]);
+    addNotification('Utilisateur créé.', 'success');
+    return newUser;
+  }, [currentUser, addNotification, setUsers]);
+
+  const updateUser = useCallback((userId: string, data: Partial<Omit<User, 'id'>>): User | null => {
+    if (!currentUser || currentUser.role !== UserRole.ADMIN) {
+      addNotification('Action non autorisée.', 'error');
+      return null;
+    }
+    let updated: User | null = null;
+    setUsers(prev => prev.map(u => {
+      if (u.id === userId) {
+        updated = { ...u, ...data };
+        return updated;
+      }
+      return u;
+    }));
+    if (updated) {
+      if (currentUser.id === userId) setCurrentUser(updated);
+      addNotification('Utilisateur mis à jour.', 'success');
+      return updated;
+    }
+    addNotification('Utilisateur non trouvé.', 'error');
+    return null;
+  }, [currentUser, addNotification, setUsers, setCurrentUser]);
+
+  const deleteUser = useCallback((userId: string): boolean => {
+    if (!currentUser || currentUser.role !== UserRole.ADMIN) {
+      addNotification('Action non autorisée.', 'error');
+      return false;
+    }
+    const exists = users.some(u => u.id === userId);
+    if (!exists) {
+      addNotification('Utilisateur non trouvé.', 'error');
+      return false;
+    }
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    if (currentUser.id === userId) logout();
+    addNotification('Utilisateur supprimé.', 'success');
+    return true;
+  }, [currentUser, users, addNotification, setUsers, logout]);
 
 
   // Class Management
@@ -406,7 +476,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addClass, updateClass, deleteClass, getAvailableSlots,
     createBooking, cancelBooking, getBookingsForCurrentUser, getBookingsForClassAndDate,
     getBookingsThisWeekForCurrentUser,
-    updateUserCredits
+    updateUserCredits, createUser, updateUser, deleteUser
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
