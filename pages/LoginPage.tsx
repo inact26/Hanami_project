@@ -10,6 +10,7 @@ import { Select } from '../components/common/Select';
 export const LoginPage: React.FC = () => {
   const [name, setName] = useState('');
   const [role, setRole] = useState<UserRole>(UserRole.STUDENT);
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAppContext();
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export const LoginPage: React.FC = () => {
       setError("Le nom est requis.");
       return;
     }
-    const user = login(name.trim(), role);
+    const user = login(name.trim(), role, password);
     if (user) {
       switch (user.role) {
         case UserRole.STUDENT:
@@ -59,16 +60,26 @@ export const LoginPage: React.FC = () => {
             />
           </div>
           <div>
-            <Input
-              label="Votre Nom"
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Marie Dupont"
-              required
-            />
-          </div>
+          <Input
+            label="Votre Nom"
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ex: Marie Dupont"
+            required
+          />
+        </div>
+        <div>
+          <Input
+            label="Mot de passe"
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
           <div>
             <Button type="submit" variant="primary" size="lg" className="w-full">
@@ -77,9 +88,9 @@ export const LoginPage: React.FC = () => {
           </div>
         </form>
          <div className="text-center text-xs text-slate-500 mt-4">
-          <p>Noms de test (Professeur): Professeur Oak</p>
-          <p>Noms de test (Élève): Élève Sacha</p>
-          <p>Noms de test (Admin): Admin User</p>
+          <p>Noms de test (Professeur): Professeur Oak / mot de passe: teacher</p>
+          <p>Noms de test (Élève): Élève Sacha / mot de passe: student</p>
+          <p>Noms de test (Admin): Admin User / mot de passe: admin</p>
           <p>Ou entrez un nouveau nom pour créer un compte.</p>
         </div>
       </div>
