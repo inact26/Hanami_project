@@ -32,7 +32,7 @@ export const LoginPage: React.FC = () => {
           navigate('/dashboard/teacher/classes');
           break;
         case UserRole.ADMIN:
-          navigate('/dashboard/admin/users');
+          navigate('/dashboard/admin');
           break;
         default:
           navigate('/');

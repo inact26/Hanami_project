@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, NavLink } from 'react-router-dom';
 import { useAppContext } from '../contexts/AppContext';
 import { User, UserRole, YogaClass, YogaClassFormData } from '../types';
 import { ClassCard } from '../components/classes/ClassCard';
@@ -260,6 +260,35 @@ const ManageClasses: React.FC = () => {
   );
 };
 
+const AdminHome: React.FC = () => {
+  const { currentUser } = useAppContext();
+
+  if (!currentUser || currentUser.role !== UserRole.ADMIN) return null;
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 bg-white rounded-xl shadow-lg border border-emerald-100">
+        <h2 className="text-3xl font-semibold text-teal-700 mb-1">Tableau de Bord Administrateur</h2>
+        <p className="text-slate-600">Choisissez une section pour commencer.</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <NavLink
+          to="/dashboard/admin/users"
+          className="block p-6 bg-emerald-100 hover:bg-emerald-200 rounded-lg text-center text-teal-700 font-medium"
+        >
+          Gérer les Utilisateurs
+        </NavLink>
+        <NavLink
+          to="/dashboard/admin/classes"
+          className="block p-6 bg-emerald-100 hover:bg-emerald-200 rounded-lg text-center text-teal-700 font-medium"
+        >
+          Gérer les Cours
+        </NavLink>
+      </div>
+    </div>
+  );
+};
+
 
 export const AdminDashboardPage: React.FC = () => {
   const { currentUser } = useAppContext();
@@ -275,6 +304,7 @@ export const AdminDashboardPage: React.FC = () => {
   );
 };
 
+export { AdminHome };
 export { ManageUsers as AdminManageUsers };
-export { ManageClasses as AdminManageClasses }
+export { ManageClasses as AdminManageClasses };
 

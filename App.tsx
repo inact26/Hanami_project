@@ -6,7 +6,7 @@ import { Header } from './components/layout/Header';
 import { LoginPage } from './pages/LoginPage';
 import { StudentDashboardPage, StudentAvailableClasses, StudentMyBookings } from './pages/StudentDashboardPage';
 import { TeacherDashboardPage, TeacherMyClasses, TeacherSchedule } from './pages/TeacherDashboardPage';
-import { AdminDashboardPage, AdminManageUsers, AdminManageClasses } from './pages/AdminDashboardPage';
+import { AdminDashboardPage, AdminManageUsers, AdminManageClasses, AdminHome } from './pages/AdminDashboardPage';
 import { NotificationBar } from './components/notifications/NotificationBar';
 import { UserRole } from './types';
 import { APP_NAME } from './constants'; // Import APP_NAME
@@ -30,7 +30,7 @@ const ProtectedRoute: React.FC<{ allowedRoles: UserRole[] }> = ({ allowedRoles }
     let defaultPath = '/';
     if (currentUser.role === UserRole.STUDENT) defaultPath = '/dashboard/student/classes';
     if (currentUser.role === UserRole.TEACHER) defaultPath = '/dashboard/teacher/classes';
-    if (currentUser.role === UserRole.ADMIN) defaultPath = '/dashboard/admin/users';
+    if (currentUser.role === UserRole.ADMIN) defaultPath = '/dashboard/admin';
     return <Navigate to={defaultPath} replace />;
   }
 
@@ -74,9 +74,9 @@ const App: React.FC = () => {
           {/* Admin Routes */}
           <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>
             <Route path="/dashboard/admin" element={<AdminDashboardPage />}>
+                <Route index element={<AdminHome />} />
                 <Route path="users" element={<AdminManageUsers />} />
                 <Route path="classes" element={<AdminManageClasses />} />
-                <Route index element={<Navigate to="users" replace />} />
             </Route>
           </Route>
           
@@ -87,7 +87,7 @@ const App: React.FC = () => {
               currentUser ? (
                 currentUser.role === UserRole.STUDENT ? <Navigate to="/dashboard/student/classes" replace /> :
                 currentUser.role === UserRole.TEACHER ? <Navigate to="/dashboard/teacher/classes" replace /> :
-                currentUser.role === UserRole.ADMIN ? <Navigate to="/dashboard/admin/users" replace /> :
+                currentUser.role === UserRole.ADMIN ? <Navigate to="/dashboard/admin" replace /> :
                 <Navigate to="/login" replace /> // Should not happen if role is set
               ) : (
                 <Navigate to="/login" replace />
