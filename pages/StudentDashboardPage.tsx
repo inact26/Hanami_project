@@ -1,18 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAppContext } from '../contexts/AppContext';
 import { YogaClass, Booking, UserRole } from '../types';
 import { ClassCard } from '../components/classes/ClassCard';
 import { Button } from '../components/common/Button';
+import { Select } from '../components/common/Select';
+import { Input } from '../components/common/Input';
+import { DAYS_OF_WEEK } from '../constants';
 import { isCancellationAllowed, combineDateAndTime } from '../utils/dateUtils';
 
 const AvailableClasses: React.FC = () => {
   const { classes, currentUser, getBookingsThisWeekForCurrentUser } = useAppContext();
+  const [filterDay, setFilterDay] = useState<string>('');
+  const [filterTeacher, setFilterTeacher] = useState<string>('');
+  const [filterLocation, setFilterLocation] = useState<string>('');
   
   if (!currentUser || currentUser.role !== UserRole.STUDENT) return <p>Accès non autorisé.</p>;
 
   const bookingsThisWeek = getBookingsThisWeekForCurrentUser();
   const canBookMoreThisWeek = bookingsThisWeek < 1; // Assuming limit is 1 per week
+
+  const teacherOptions = Array.from(new Set(classes.map(c => c.teacherName || '')))
+    .filter(t => t)
+    .map(t => ({ value: t, label: t }));
+
+  const filteredClasses = classes.filter(c => {
+    return (
+      (!filterDay || c.dayOfWeek === filterDay) &&
+      (!filterTeacher || (c.teacherName || '').toLowerCase().includes(filterTeacher.toLowerCase())) &&
+      (!filterLocation || c.location.toLowerCase().includes(filterLocation.toLowerCase()))
+    );
+  });
 
 
   return (
@@ -46,9 +64,33 @@ const AvailableClasses: React.FC = () => {
             </p>
          )}
       </div>
-      {classes.length === 0 && <p className="text-slate-600 mt-4">Aucun cours disponible pour le moment.</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <Select
+          label="Jour"
+          options={DAYS_OF_WEEK.map(d => ({ value: d, label: d }))}
+          value={filterDay}
+          onChange={e => setFilterDay(e.target.value)}
+          placeholder="Tous les jours"
+        />
+        <Select
+          label="Enseignant"
+          options={teacherOptions}
+          value={filterTeacher}
+          onChange={e => setFilterTeacher(e.target.value)}
+          placeholder="Tous"
+        />
+        <Input
+          label="Lieu"
+          value={filterLocation}
+          onChange={e => setFilterLocation(e.target.value)}
+          placeholder="Tous les lieux"
+        />
+      </div>
+      {filteredClasses.length === 0 && (
+        <p className="text-slate-600">Aucun cours correspondant aux filtres.</p>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {classes.map(cls => (
+        {filteredClasses.map(cls => (
           <ClassCard key={cls.id} yogaClass={cls} />
         ))}
       </div>
