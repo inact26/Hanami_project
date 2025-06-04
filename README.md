@@ -13,6 +13,3 @@ This contains everything you need to run your app locally.
 3. Run the app:
    `npm run dev`
 
-## Filtres pour les élèves
-
-Dans le tableau de bord étudiant, des champs de filtre vous permettent d'affiner la liste des cours par jour, enseignant ou lieu. Laissez un champ vide pour ne pas appliquer ce critère.

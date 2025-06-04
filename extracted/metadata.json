@@ -1,5 +1,0 @@
-{
-  "name": "Zenith Yoga Studio Management",
-  "description": "A web application for managing yoga classes, bookings, and users for Zenith Yoga Studio. Students can browse and book classes, teachers can manage their offerings and schedule, and admins can oversee users and all classes.",
-  "requestFramePermissions": []
-}
