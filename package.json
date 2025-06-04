@@ -16,7 +16,11 @@
     "react-router-dom": "^7.6.2"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.8",
     "@types/node": "^22.14.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.4",
+    "tailwindcss": "^4.1.8",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
     "vitest": "^1.4.0"
