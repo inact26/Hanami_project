@@ -15,13 +15,13 @@ export const Button: React.FC<ButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = "font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyles = "font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variantStyles = {
-    primary: 'bg-teal-600 hover:bg-teal-700 text-white focus:ring-teal-500',
-    secondary: 'bg-slate-200 hover:bg-slate-300 text-slate-700 focus:ring-slate-400',
-    danger: 'bg-red-500 hover:bg-red-600 text-white focus:ring-red-400',
-    ghost: 'bg-transparent hover:bg-teal-100 text-teal-600 focus:ring-teal-500 border border-teal-600',
+    primary: 'bg-teal-400 hover:bg-teal-500 text-teal-900 focus:ring-teal-300',
+    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-700 focus:ring-slate-300',
+    danger: 'bg-red-400 hover:bg-red-500 text-white focus:ring-red-300',
+    ghost: 'bg-transparent hover:bg-teal-100 text-teal-600 focus:ring-teal-300 border border-teal-400',
   };
 
   const sizeStyles = {
